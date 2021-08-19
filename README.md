@@ -22,7 +22,10 @@ The command "status" is being processed as a test.
     var metaList = await serv.SendCommandAsync<MetaList.Response>("meta list");
     
 # List of processed commands
-### For get typed response from AmxModX command use "using Valve_Rcon.CmdResponse.AMX;"
+### For get typed response from AmxModX command use: 
+
+    using Valve_Rcon.CmdResponse.AMX;
+
 1. status
     >typeOf Status.Response
 2. meta list 
