@@ -1,10 +1,10 @@
-﻿using Rcontester.ResultModels;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Valve_Rcon.Converter;
 
 namespace Valve_Rcon
 {
@@ -14,9 +14,9 @@ namespace Valve_Rcon
 		private int port;
 		private string rcon;
 		private Game gameType;
-		
+
 		UdpClient client = new UdpClient();
-	
+
 		public enum Game
 		{
 			CS16
@@ -24,6 +24,8 @@ namespace Valve_Rcon
 
 		public Server(string IP, int Port, string RconPassword, Game GameType)
 		{
+			CommandBase.Initialize();
+
 			ip = IP;
 			port = Port;
 			rcon = RconPassword;
@@ -32,6 +34,7 @@ namespace Valve_Rcon
 			client.Connect(ip, port);
 		}
 
+		#region Send CMD
 		async public Task<T> SendCommandAsync<T>(string cmd)
 		{
 			//sending challenge command to counter strike server 
@@ -62,13 +65,13 @@ namespace Valve_Rcon
 			if (ckeck != null)
 				throw new Exception(ckeck);
 
-			switch (cmd)
-			{
-				case "status":
-					return (T)Convert.ChangeType(new Status(response), typeof(T));
-			}
+			var Handler = CommandBase.Handler(cmd, gameType);
 
-			return (T)Convert.ChangeType(null, typeof(T));
+			if (Handler != null)
+
+				return (T)Convert.ChangeType(Handler(response, gameType), typeof(T));
+			else
+				return (T)Convert.ChangeType(response, typeof(string));
 		}
 
 		byte[] CMDPrepare(string command)
@@ -92,5 +95,6 @@ namespace Valve_Rcon
 			return bufferSend;
 		}
 
+		#endregion
 	}
 }
